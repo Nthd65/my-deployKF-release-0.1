@@ -459,7 +459,7 @@ deploykf_core:
 
       kubectl:
         repository: docker.io/bitnami/kubectl
-        tag: 1.26.15-debian-12-r4
+        tag: latest
         pullPolicy: IfNotPresent
 
     ## dex configs
@@ -1054,7 +1054,7 @@ deploykf_opt:
 
       kubectl:
         repository: docker.io/bitnami/kubectl
-        tag: 1.26.15-debian-12-r4
+        tag: latest
         pullPolicy: IfNotPresent
 
       shell:
@@ -1195,7 +1195,7 @@ deploykf_opt:
 
       kubectl:
         repository: docker.io/bitnami/kubectl
-        tag: 1.26.15-debian-12-r4
+        tag: latest
         pullPolicy: IfNotPresent
 
     ## persistence configs
