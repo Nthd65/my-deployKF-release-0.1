@@ -4,7 +4,6 @@
 ##
 ## --------------------------------------------------------------------------------
 argocd:
-
   ## a prefix to use for argocd application names
   ##  - allows a single instance of argocd to manage deployKF across multiple clusters
   ##  - if non-empty, `argocd.destination` must be a remote cluster, this is because
@@ -23,11 +22,9 @@ argocd:
   ## the source used for deployKF argocd applications
   ##
   source:
-
     ## plugin configs
     ##
     plugin:
-
       ## if the argocd plugin is being used
       ##  - note, this value is automatically set to true when using the plugin
       ##
@@ -60,23 +57,19 @@ argocd:
     server: https://kubernetes.default.svc
     name: ""
 
-
 ## --------------------------------------------------------------------------------
 ##
 ##                                    kubernetes
 ##
 ## --------------------------------------------------------------------------------
 kubernetes:
-
   ## configs specific to Azure Kubernetes
   ##
   azure:
-
     ## apply workarounds for the AKS Admissions Enforcer
     ##  - https://github.com/deployKF/deployKF/issues/61
     ##
     admissionsEnforcerFix: false
-
 
 ## --------------------------------------------------------------------------------
 ##
@@ -84,7 +77,6 @@ kubernetes:
 ##
 ## --------------------------------------------------------------------------------
 deploykf_dependencies:
-
   ## --------------------------------------
   ##             cert-manager
   ## --------------------------------------
@@ -159,7 +151,6 @@ deploykf_dependencies:
     ## cert-manager controller configs
     ##
     controller:
-
       ## extra Pod labels
       ##
       podLabels: {}
@@ -206,7 +197,6 @@ deploykf_dependencies:
         ## is injected with a ConfigMap containing a "root-cert.pem" key that contains the self-signed root CA
         ## applications can then trust the issued gateway certificates by trusting this CA
         injectedConfigMapName: deploykf-gateway-issuer-root-ca-cert
-
 
   ## --------------------------------------
   ##                 istio
@@ -264,7 +254,6 @@ deploykf_dependencies:
     ## istio sidecar injector webhook configs
     ##
     sidecarInjectorWebhook:
-
       ## additional annotations which are added to pods after sidecar injection
       ##
       injectedAnnotations: {}
@@ -274,7 +263,6 @@ deploykf_dependencies:
     ##  - a useful config for debugging is to set `accessLogFile` as "/dev/stdout", which will print access logs to STDOUT
     ##
     meshConfig: {}
-
 
   ## --------------------------------------
   ##                kyverno
@@ -392,7 +380,6 @@ deploykf_dependencies:
     ## kyverno policy configs
     ##
     clusterPolicies:
-
       ## a policy to automatically replicate and inject pod imagePullSecrets
       ##  - this policy is useful for ~private~ container registries or avoiding ~pull limits~
       ##
@@ -416,14 +403,12 @@ deploykf_dependencies:
         ##
         registryCredentials: []
 
-
 ## --------------------------------------------------------------------------------
 ##
 ##                                  deploykf-core
 ##
 ## --------------------------------------------------------------------------------
 deploykf_core:
-
   ## --------------------------------------
   ##             deploykf-auth
   ## --------------------------------------
@@ -465,7 +450,6 @@ deploykf_core:
     ## dex configs
     ##
     dex:
-
       ## dex static passwords
       ##  - a list of users to create in dex's built-in password database
       ##  - each element is a map with keys `email` and `password`,
@@ -524,7 +508,6 @@ deploykf_core:
       ## dex OpenID Connect clients
       ##
       clients:
-
         ## OpenID client for oauth2-proxy (deployKF Dashboard)
         ##  - [WARNING] it is strongly recommended to enable `generateSecret` or use a custom value
         ##
@@ -568,7 +551,6 @@ deploykf_core:
     ## oauth2-proxy configs
     ##
     oauth2Proxy:
-
       ## if a sign-in page is shown before redirecting to dex
       ##  - when enabled, prevents background requests from accumulating CSRF cookies upon token expiry
       ##    by requiring a click to initiate the dex login flow
@@ -598,7 +580,6 @@ deploykf_core:
           existingSecret: ""
           existingSecretKey: "cookie_secret"
           generateSecret: false
-
 
   ## --------------------------------------
   ##          deploykf-dashboard
@@ -641,7 +622,6 @@ deploykf_core:
     ## configs dashboard navigation
     ##
     navigation:
-
       ## external links that appear in the sidebar
       ##  - a list of extra links to appear in the dashboard sidebar
       ##  - each element is a map with the following keys:
@@ -702,7 +682,6 @@ deploykf_core:
     ## istio gateway configs
     ##
     gateway:
-
       ## the name of the Gateway resource, created by deployKF
       ##
       name: deploykf-gateway
@@ -726,7 +705,6 @@ deploykf_core:
       ## gateway TLS configs
       ##
       tls:
-
         ## if the gateway will listen on HTTPS
         ##  - must ALWAYS be true (even if an outer proxy is doing its own TLS termination)
         ##
@@ -844,7 +822,6 @@ deploykf_core:
     ## profile defaults
     ##
     profileDefaults:
-
       ## a common prefix to add to all profile names
       ##
       profileNamePrefix: ""
@@ -907,11 +884,9 @@ deploykf_core:
       ## the default tool configs for profiles
       ##
       tools:
-
         ## the default Kubeflow Pipelines configs for profiles
         ##
         kubeflowPipelines:
-
           ## the default Kubeflow Pipelines object store auth configs for profiles
           ##  - the behaviour of these configs depends on `kubeflow_tools.kubeflow_pipelines.objectStore`
           ##  - when `kubeflow_tools.kubeflow_pipelines.objectStore.useExternal`:
@@ -1007,14 +982,12 @@ deploykf_core:
               role: view
               notebooksAccess: false
 
-
 ## --------------------------------------------------------------------------------
 ##
 ##                                   deploykf-opt
 ##
 ## --------------------------------------------------------------------------------
 deploykf_opt:
-
   ## --------------------------------------
   ##            deploykf-minio
   ## --------------------------------------
@@ -1041,7 +1014,7 @@ deploykf_opt:
       minio:
         ## NOTE: we use the bitnami image because the upstream image does not contain `curl` and we
         ##       need it to run checks before starting minio: https://github.com/minio/minio/issues/18373
-        repository: docker.io/bitnami/minio
+        repository: public.ecr.aws/bitnami/minio
         tag: 2024.5.10-debian-12-r2
         pullPolicy: IfNotPresent
 
@@ -1127,7 +1100,6 @@ deploykf_opt:
     ## identity configs
     ##
     identity:
-
       ## OpenID Connect configs (connects to `deploykf-auth` dex)
       ##
       openid:
@@ -1163,7 +1135,6 @@ deploykf_opt:
     ##    policies are automatically generated for each user based on their `access.role` in each profile
     ##
     policies: []
-
 
   ## --------------------------------------
   ##            deploykf-mysql
@@ -1290,7 +1261,6 @@ deploykf_opt:
       default_authentication_plugin=mysql_native_password
       log_error_suppression_list='MY-013360'
 
-
 ## --------------------------------------------------------------------------------
 ##
 ##                                deploykf-tools
@@ -1298,14 +1268,12 @@ deploykf_opt:
 ## --------------------------------------------------------------------------------
 deploykf_tools: {}
 
-
 ## --------------------------------------------------------------------------------
 ##
 ##                              kubeflow-dependencies
 ##
 ## --------------------------------------------------------------------------------
 kubeflow_dependencies:
-
   ## --------------------------------------
   ##        kubeflow-argo-workflows
   ## --------------------------------------
@@ -1352,7 +1320,6 @@ kubeflow_dependencies:
     ## configs for the default artifact repository
     ##
     artifactRepository:
-
       ## a format pattern to define how artifacts will be organized in the bucket
       ##  - if `kubeflow_tools.pipelines.objectStore.useExternal` is false, then this must be left as the default
       ##
@@ -1361,7 +1328,6 @@ kubeflow_dependencies:
     ## configs for argo workflow controller
     ##
     controller:
-
       ## configs for the service account used by argo workflow controller
       ##
       serviceAccount:
@@ -1372,7 +1338,6 @@ kubeflow_dependencies:
     ## configs for argo server
     ##
     server:
-
       ## configs for the service account used by argo server
       ##
       serviceAccount:
@@ -1386,7 +1351,6 @@ kubeflow_dependencies:
 ##
 ## --------------------------------------------------------------------------------
 kubeflow_tools:
-
   ## --------------------------------------
   ##                 katib
   ## --------------------------------------
@@ -1434,7 +1398,6 @@ kubeflow_tools:
     ##
     mysqlDatabase: katib
 
-
   ## --------------------------------------
   ##               notebooks
   ## --------------------------------------
@@ -1465,7 +1428,6 @@ kubeflow_tools:
     ##     - when 'readOnly' is missing, it defaults to 'false'
     ##
     spawnerFormDefaults:
-
       ## if users can input custom images, or only select from dropdowns
       allowCustomImage: true
 
@@ -1767,7 +1729,6 @@ kubeflow_tools:
       ## sets `IDLENESS_CHECK_PERIOD` environment variable in notebook-controller (in minutes)
       idlenessCheckPeriod: 1
 
-
   ## --------------------------------------
   ##               pipelines
   ## --------------------------------------
@@ -1827,7 +1788,6 @@ kubeflow_tools:
     ## service account configs
     ##
     serviceAccounts:
-
       ## the service account used by the 'ml-pipeline' Deployment
       ##  - note, the name of this service account is 'ml-pipeline'
       ##
@@ -1909,7 +1869,6 @@ kubeflow_tools:
     ## configs specific to Kubeflow Pipelines v2
     ##
     kfpV2:
-
       ## sets the default `pipeline_root` in each profile
       ##  - if `kubeflow_tools.pipelines.objectStore.useExternal` is false, then this must be left as the default
       ##  - the following template variables are available:
@@ -1942,7 +1901,6 @@ kubeflow_tools:
     ##    `maximumMaxCacheStaleness` and `defaultMaxCacheStaleness` to "P0D"
     ##
     cache:
-
       ## cached steps will have their image replaced with this value
       ##  - the only requirement is that the image can run an `echo` command
       ##  - kubeflow pipelines chose this image because it's small, and not subject to rate limiting
@@ -1978,7 +1936,6 @@ kubeflow_tools:
     ##    these configs provide additional control over the generated resources
     ##
     profileResourceGeneration:
-
       ## if a PodDefault named "kubeflow-pipelines-api-token" should be generated in each profile namespace
       ##  - the generated PodDefault will mount a serviceAccountToken volume which can be used to authenticate
       ##    with the Kubeflow Pipelines API on Pods which have a `kubeflow-pipelines-api-token` label with value "true"
@@ -1988,7 +1945,6 @@ kubeflow_tools:
       ##    regardless of this setting
       ##
       kfpApiTokenPodDefault: false
-
 
   ## --------------------------------------
   ##          poddefaults-webhook
@@ -2008,7 +1964,6 @@ kubeflow_tools:
       poddefaultsWebhook:
         repository: docker.io/kubeflownotebookswg/poddefaults-webhook
         tag: ~
-
 
   ## --------------------------------------
   ##             tensorboards
@@ -2042,7 +1997,6 @@ kubeflow_tools:
     ##
     tensorboardImage: "docker.io/tensorflow/tensorflow:2.5.1"
 
-
   ## --------------------------------------
   ##           training-operator
   ## --------------------------------------
@@ -2061,7 +2015,6 @@ kubeflow_tools:
       trainingOperator:
         repository: docker.io/kubeflow/training-operator
         tag: ~
-
 
   ## --------------------------------------
   ##                volumes
