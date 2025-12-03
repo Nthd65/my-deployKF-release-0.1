@@ -1032,8 +1032,8 @@ deploykf_opt:
 
       shell:
         ## NOTE: this image must have `bash`, `curl` and `jq` installed
-        repository: docker.io/bitnami/os-shell
-        tag: 12-debian-12-r20
+        repository: public.ecr.aws/bitnami/os-shell
+        tag: latest
         pullPolicy: IfNotPresent
 
     ## persistence configs

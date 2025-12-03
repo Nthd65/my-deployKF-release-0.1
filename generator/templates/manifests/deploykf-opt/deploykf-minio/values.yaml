@@ -89,7 +89,7 @@ minio:
     uid: 1000
     gid: 1000
 
-  ## configs for the os-shell container image
+  ## configs for the http://public.ecr.aws/bitnami/os-shell container image
   ##
   shellImage:
     repository: {{< .Values.deploykf_opt.deploykf_minio.images.shell.repository | quote >}}
