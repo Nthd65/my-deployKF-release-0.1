@@ -1,43 +1,146 @@
 ########################################
+## SHARED | deploykf-helpers
+########################################
+deployKF_helpers:
+  deploykf_gateway:
+    http_endpoint: "deploykf.example.com:8080"
+    https_endpoint: "deploykf.example.com:8443"
+
+
+########################################
 ## SHARED | deploykf
 ########################################
 deployKF:
   extraManifests:
 
+  clusterDomain: cluster.local
+
+  kubeflow:
+    namespace: kubeflow
+    useridHeader: kubeflow-userid
+    pipelines:
+      enabled: true
+      kfpV2:
+        defaultPipelineRoot: "{scheme}://{bucket_name}/v2/artifacts/{profile_name}?region={bucket_region}&endpoint={endpoint}&disableSSL={not_use_ssl}&s3ForcePathStyle=true"
+      cache:
+        namespaceRedirect: true
+    notebooks:
+      enabled: true
+    tensorboards:
+      enabled: true
+
+  certManager:
+    clusterIssuer:
+      issuerName: "deploykf-gateway-issuer"
+
+  argoWorkflows:
+    enabled: true
+    namespace: "kubeflow-argo-workflows"
+    artifactRepository:
+      keyFormat: "artifacts/{{ workflow.namespace }}/{{ workflow.name }}/{{ workflow.creationTimestamp.Y }}/{{ workflow.creationTimestamp.m }}/{{ workflow.creationTimestamp.d }}/{{ pod.name }}"
+
+  auth:
+    namespace: "deploykf-auth"
+    dex:
+      clients:
+        oauth2Proxy:
+          clientId: "oauth2-proxy"
+        kubeflowPipelinesSDK:
+          enabled: true
+          clientId: "kubeflow-pipelines-sdk"
+
+  gateway:
+    name: "deploykf-gateway"
+    httpsRedirectName: "deploykf-gateway-https-redirect"
+    selectorLabels: {"app":"deploykf-gateway","istio":"deploykf-gateway"}
+    hostname: "deploykf.example.com"
+    ports:
+      http: 8080
+      https: 8443
+    servicePorts:
+      http: ~
+      https: ~
+    tls:
+      enabled: true
+      clientsUseHttps: true
+      matchSNI: true
+      redirect: true
+    enableProxyProtocol: false
+    xffNumTrustedHops: 0
+    emailToLowercase: false
+
+  minio:
+    enabled: true
+    namespace: "deploykf-minio"
+
 
 ########################################
-## SHARED | global
+## DEPENDENCY | istio-gateway
 ########################################
-## the istio charts use `global` values to set configs for some shared configs
-## additionally, these values appear in `ConfigMap/istio-sidecar-injector` under the `values` key
-global:
-  istioNamespace: "istio-system"
-  proxy:
-    image: "docker.io/istio/proxyv2:1.17.8-distroless"
-    clusterDomain: cluster.local
-  proxy_init:
-    image: "docker.io/istio/proxyv2:1.17.8-distroless"
+## we reference the "gateway" chart (https://istio-release.storage.googleapis.com/charts) in `dependencies` of Chart.yaml
+## we must indent our values under `gateway:` in this file
+gatewayEnabled: true
+gateway:
+  name: "deploykf-gateway"
 
+  replicaCount: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
 
-########################################
-## DEPENDENCY | istio-base
-########################################
-## we reference the "base" chart (https://istio-release.storage.googleapis.com/charts) in `dependencies` of Chart.yaml,
-## with an alias of "istio-base", so we must indent the values for "base" under `istio-base`
-istio-base: {}
+  serviceAccount:
+    name: "deploykf-gateway"
+    annotations: {}
 
+  service:
+    annotations: {}
+    type: "NodePort"  # Changed from LoadBalancer - RKE doesn't have cloud LB provider
+    loadBalancerIP: ""
+    loadBalancerSourceRanges: []
+    externalTrafficPolicy: ""
+    externalIPs: []
+    ports:
+      ## NOTE: the status-port is required for many LoadBalancer services (like AWS NLB),
+      ##       as they poll the first port of a service to determine if it's ready to receive traffic
+      ## NOTE: port 15021 is special, istio responds to HTTP health checks on this port under /healthz/ready
+      ##       https://istio.io/latest/docs/ops/deployment/requirements/#ports-used-by-istio
+      - name: status-port
+        port: 15021
+        protocol: TCP
+        targetPort: 15021
+      - name: http
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+      - name: https
+        port: 8443
+        protocol: TCP
+        targetPort: 8443
 
-########################################
-## DEPENDENCY | istio-daemon
-########################################
-## we reference the "istiod" chart (https://istio-release.storage.googleapis.com/charts) in `dependencies` of Chart.yaml,
-## with an alias of "istio-daemon", so we must indent the values for "istiod" under `istio-daemon`
-istio-daemon:
-  pilot:
-    image: "docker.io/istio/pilot:1.17.8-distroless"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 2000m
+      memory: 1024Mi
 
-  sidecarInjectorWebhook:
-    enableNamespacesByDefault: false
-    injectedAnnotations: {}
+  podAnnotations: {}
 
-  meshConfig: {"defaultConfig":{"holdApplicationUntilProxyStarts":true,"proxyMetadata":{"ISTIO_META_DNS_AUTO_ALLOCATE":"true","ISTIO_META_DNS_CAPTURE":"true"}},"trustDomain":"cluster.local"}
+  securityContext: ~
+  containerSecurityContext: ~
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  # Pod environment variables
+  env: {}
+
+  # Labels to apply to all resources
+  labels: {}
+
+  # Annotations to apply to all resources
+  annotations: {}
